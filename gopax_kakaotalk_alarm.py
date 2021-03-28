@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jan 18 20:52:47 2021
-
-@author: junob
 """
 
 from selenium import webdriver
@@ -16,13 +14,19 @@ import pyperclip
 url ='https://www.gopax.co.kr/exchange/btc-krw'
 url_bull = 'https://www.gopax.co.kr/exchange/btcbull-krw'
 url_bear = 'https://www.gopax.co.kr/exchange/btcbear-krw'
+#driver = webdriver.Firefox(executable_path=r'/home/pi/programing/python_folder/gopax_kakaotalk_macro/geckodriver')
 driver = webdriver.Edge('../msedgedriver.exe')
 #driver = webdriver.PhantomJS('../phantomjs-2.1.1-windows/bin/phantomjs.exe')
 
 price_factor = 1000000
 
 driver.get(url)
-
+while True:
+    try:
+        driver.find_elements_by_class_name('EmergencyPopup__button')[0].click()
+        break
+    except:
+        t.sleep(1)
 def text_to_number(text):
     number=''
     for i in text:
@@ -32,8 +36,7 @@ def text_to_number(text):
             pass
     #print(price)
     try:
-        number = int(number)
-       
+        number = int(number) 
     except:
         number = 0
 
@@ -48,16 +51,28 @@ def send_to_kr_kakaotalk(text):
     pyautogui.hotkey("ctrl", "v")
     pyautogui.press('enter')
     
-def coin_price():
+def coin_price(name):
     price = 0
     while True:
-        bs = BeautifulSoup(driver.page_source, 'html.parser')
-        price_text = bs.find('title').get_text()
-        #print(price_text)
-        price = text_to_number(price_text)
-        if price != 0:
+        # bs = BeautifulSoup(driver.page_source, 'html.parser')
+        # price_text = bs.find('title').get_text()
+        # print(price_text)
+        try:
+            if name == 'bit':
+                #button = driver.find_elements_by_class_name('SelectableMarketFilters__filter')
+                price_text = driver.find_elements_by_class_name('SortableMarketTable__mainText--silver')[1].text + ' KRW/BTC'
+            elif name == 'bull':
+                driver.find_elements_by_class_name('SelectableMarketFilters__filter')[2].click()
+                price_text = driver.find_elements_by_class_name('SortableMarketTable__mainText--silver')[1].text + ' KRW/BTCBULL'
+                driver.find_elements_by_class_name('SelectableMarketFilters__filter')[1].click()
+            elif name == 'bear':
+                driver.find_elements_by_class_name('SelectableMarketFilters__filter')[2].click()
+                price_text = driver.find_elements_by_class_name('SortableMarketTable__mainText--silver')[3].text + ' KRW/BTCBEAR'
+                driver.find_elements_by_class_name('SelectableMarketFilters__filter')[1].click()
+            price = text_to_number(price_text)
+            print(price_text, price)
             break
-        else:
+        except:
             t.sleep(1)
     return price_text, price
 
@@ -72,28 +87,28 @@ def bitcoin():
     location = pyautogui.locateOnScreen(r'bitcoin.PNG')
     if location != None:    
         #print('yes')
-        price_text, price = coin_price()
+        price_text, price = coin_price('bit')
         send_to_kakaotalk(url+'\n'+price_text)
         
 def bitcoin_bull():
     location = pyautogui.locateOnScreen(r'bitcoinbull.PNG')
     if location != None:    
         #print('yes')
-        driver.get(url_bull)
+        #driver.get(url_bull)
         price = 0
-        price_text, price = coin_price()
+        price_text, price = coin_price('bull')
         send_to_kakaotalk(url_bull+'\n'+price_text)
-        driver.get(url)
+        #driver.get(url)
      
 def bitcoin_bear():
     location = pyautogui.locateOnScreen(r'bitcoinbear.PNG')
     if location != None:  
         #print('yes')
-        driver.get(url_bear)
+        #driver.get(url_bear)
         price = 0
-        price_text, price = coin_price()
+        price_text, price = coin_price('bear')
         send_to_kakaotalk(url_bear+'\n'+price_text)
-        driver.get(url)
+        #driver.get(url)
 
 def still_jusik():
     location = pyautogui.locateOnScreen(r'stilljusik.PNG')
@@ -120,6 +135,12 @@ def hangang():
         temp = temp.split(' ')[5]
         send_to_kr_kakaotalk('현재 한강 수온은 '+temp+'°C 입니다')
         driver.get(url)
+        while True:
+            try:
+                driver.find_elements_by_class_name('EmergencyPopup__button')[0].click()
+                break
+            except:
+                t.sleep(1)
 
 def lotto():
     location = pyautogui.locateOnScreen(r'lotto.PNG')
@@ -139,12 +160,12 @@ def percent(a,b):
     per_text = '%0.2f'%(per)+'%'
     return per_text
 
-btc_b = coin_price()[1]
-driver.get(url_bull)
-btc_bull_b = coin_price()[1]
-driver.get(url_bear)
-btc_bear_b = coin_price()[1]
-driver.get(url)
+btc_b = coin_price('bit')[1]
+#driver.get(url_bull)
+btc_bull_b = coin_price('bull')[1]
+#driver.get(url_bear)
+btc_bear_b = coin_price('bear')[1]
+#driver.get(url)
 
 now = datetime.now()
 day_b = now.day
@@ -162,7 +183,7 @@ while True:
     lotto()
     magic_sora()
     
-    price_text, price = coin_price()
+    price_text, price = coin_price('bit')
     price_factor_a = price//price_factor
     
     if price_factor_a > price_factor_b:
@@ -174,12 +195,12 @@ while True:
     now = datetime.now()
     day_a = now.day
     if day_a != day_b:
-        btc_a = coin_price()[1]
-        driver.get(url_bull)
-        btc_bull_a = coin_price()[1]
-        driver.get(url_bear)
-        btc_bear_a = coin_price()[1]/1000
-        driver.get(url)
+        btc_a = coin_price('bit')[1]
+        # driver.get(url_bull)
+        btc_bull_a = coin_price('bull')[1]
+        # driver.get(url_bear)
+        btc_bear_a = coin_price('bear')[1]/1000
+        # driver.get(url)
         send_to_kakaotalk('BTC: '+'{:,}'.format(btc_a)+' KRW, '+percent(btc_a,btc_b))
         send_to_kakaotalk('BTC BULL: '+'{:,}'.format(btc_bull_a)+' KRW, '+percent(btc_bull_a,btc_bull_b))
         send_to_kakaotalk('BTC BEAR: '+'{:,}'.format(btc_bear_a)+' KRW, '+percent(btc_bear_a,btc_bear_b))
