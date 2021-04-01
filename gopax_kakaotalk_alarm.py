@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jan 18 20:52:47 2021
+
+@author: junob
 """
 
 from selenium import webdriver
@@ -11,6 +13,7 @@ import random as r
 import pyautogui
 import pyperclip
 
+main_url = 'https://www.gopax.co.kr/'
 url ='https://www.gopax.co.kr/exchange/btc-krw'
 url_bull = 'https://www.gopax.co.kr/exchange/btcbull-krw'
 url_bear = 'https://www.gopax.co.kr/exchange/btcbear-krw'
@@ -20,23 +23,36 @@ driver = webdriver.Edge('../msedgedriver.exe')
 
 price_factor = 1000000
 
-driver.get(url)
+def notice_click():
+    try:
+        driver.find_elements_by_class_name('button-hide24hours-text')[0].click()
+    except:
+        pass
+    
+driver.get(main_url)
 while True:
     try:
+        notice_click()
         driver.find_elements_by_class_name('EmergencyPopup__button')[0].click()
         break
     except:
         t.sleep(1)
+        
+
+    
 def text_to_number(text):
     number=''
     for i in text:
         try:
-            number = number+str(int(i))
+            if i =='.':
+                number = number+'.'
+            else:
+                number = number+str(int(i))
         except:
             pass
     #print(price)
     try:
-        number = int(number) 
+        number = eval(number) 
     except:
         number = 0
 
@@ -60,14 +76,14 @@ def coin_price(name):
         try:
             if name == 'bit':
                 #button = driver.find_elements_by_class_name('SelectableMarketFilters__filter')
-                price_text = driver.find_elements_by_class_name('SortableMarketTable__mainText--silver')[1].text + ' KRW/BTC'
+                price_text = driver.find_elements_by_css_selector('#BTC\/KRW > td.SortableMarketTable__lastPriceCell.SortableTable__align--right > div')[0].text + ' KRW/BTC'
             elif name == 'bull':
                 driver.find_elements_by_class_name('SelectableMarketFilters__filter')[2].click()
-                price_text = driver.find_elements_by_class_name('SortableMarketTable__mainText--silver')[1].text + ' KRW/BTCBULL'
+                price_text = driver.find_elements_by_css_selector('#BTCBULL\/KRW > td.SortableMarketTable__lastPriceCell.SortableTable__align--right > div')[0].text + ' KRW/BTCBULL'
                 driver.find_elements_by_class_name('SelectableMarketFilters__filter')[1].click()
             elif name == 'bear':
                 driver.find_elements_by_class_name('SelectableMarketFilters__filter')[2].click()
-                price_text = driver.find_elements_by_class_name('SortableMarketTable__mainText--silver')[3].text + ' KRW/BTCBEAR'
+                price_text = driver.find_elements_by_css_selector('#BTCBEAR\/KRW > td.SortableMarketTable__lastPriceCell.SortableTable__align--right > div')[0].text + ' KRW/BTCBEAR'
                 driver.find_elements_by_class_name('SelectableMarketFilters__filter')[1].click()
             price = text_to_number(price_text)
             print(price_text, price)
@@ -172,6 +188,7 @@ day_b = now.day
 price_factor_b = 0
 while True:
     t.sleep(1)
+    notice_click()
     bitconet()
     bitcoin()
     bitcoin_bull()
@@ -199,7 +216,7 @@ while True:
         # driver.get(url_bull)
         btc_bull_a = coin_price('bull')[1]
         # driver.get(url_bear)
-        btc_bear_a = coin_price('bear')[1]/1000
+        btc_bear_a = coin_price('bear')[1]
         # driver.get(url)
         send_to_kakaotalk('BTC: '+'{:,}'.format(btc_a)+' KRW, '+percent(btc_a,btc_b))
         send_to_kakaotalk('BTC BULL: '+'{:,}'.format(btc_bull_a)+' KRW, '+percent(btc_bull_a,btc_bull_b))
