@@ -24,21 +24,19 @@ driver = webdriver.Edge('../msedgedriver.exe')
 price_factor = 1000000
 
 def notice_click():
-    try:
-        driver.find_elements_by_class_name('button-hide24hours-text')[0].click()
-    except:
-        pass
+    while True:
+        try:
+            try:
+                driver.find_elements_by_class_name('button-hide24hours-text')[0].click()
+            except:
+                pass
+            driver.find_elements_by_class_name('EmergencyPopup__button')[0].click()
+            break
+        except:
+            t.sleep(1)
     
 driver.get(main_url)
-while True:
-    try:
-        notice_click()
-        driver.find_elements_by_class_name('EmergencyPopup__button')[0].click()
-        break
-    except:
-        t.sleep(1)
-        
-
+notice_click()
     
 def text_to_number(text):
     number=''
@@ -145,18 +143,16 @@ def hangang():
     location = pyautogui.locateOnScreen(r'hangang.PNG')
     if location != None:
         driver.get('https://hangang.life/')
-        bs = BeautifulSoup(driver.page_source, 'html.parser')
-        temp = bs.find('head').find('meta',{'name':'description'})
-        temp = str(temp)
-        temp = temp.split(' ')[5]
-        send_to_kr_kakaotalk('현재 한강 수온은 '+temp+'°C 입니다')
-        driver.get(url)
-        while True:
-            try:
-                driver.find_elements_by_class_name('EmergencyPopup__button')[0].click()
-                break
-            except:
-                t.sleep(1)
+        # bs = BeautifulSoup(driver.page_source, 'html.parser')
+        # temp = bs.find('head').find('meta',{'name':'description'})
+        temp = driver.find_elements_by_css_selector('#hangang_temp')[0].text
+        good_word = driver.find_elements_by_css_selector('body > header > div > span:nth-child(18)')[0].text.split('\n')[0]
+        #temp = str(temp)
+        #temp = temp.split(' ')[5]
+        send_to_kr_kakaotalk('현재 한강 수온은 '+temp+' 입니다')
+        send_to_kr_kakaotalk(good_word)
+        driver.get(main_url)
+        notice_click()
 
 def lotto():
     location = pyautogui.locateOnScreen(r'lotto.PNG')
