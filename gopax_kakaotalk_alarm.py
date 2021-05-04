@@ -184,7 +184,7 @@ day_b = now.day
 price_factor_b = 0
 while True:
     t.sleep(1)
-    notice_click()
+    # notice_click()
     bitconet()
     bitcoin()
     bitcoin_bull()
