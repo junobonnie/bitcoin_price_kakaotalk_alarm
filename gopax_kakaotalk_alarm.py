@@ -146,11 +146,11 @@ def hangang():
         # bs = BeautifulSoup(driver.page_source, 'html.parser')
         # temp = bs.find('head').find('meta',{'name':'description'})
         temp = driver.find_elements_by_css_selector('#hangang_temp')[0].text
-        good_word = driver.find_elements_by_css_selector('body > header > div > span:nth-child(18)')[0].text.split('\n')[0]
+        # good_word = driver.find_elements_by_css_selector('body > header > div > span:nth-child(18)')[0].text.split('\n')[0]
         #temp = str(temp)
         #temp = temp.split(' ')[5]
         send_to_kr_kakaotalk('현재 한강 수온은 '+temp+' 입니다')
-        send_to_kr_kakaotalk(good_word)
+        # send_to_kr_kakaotalk(good_word)
         driver.get(main_url)
         notice_click()
 
